@@ -1,10 +1,11 @@
 "use client";
 
 import React from 'react';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 import { useCalendar } from '@/context/CalendarContext';
 import { CalendarDay as DayType } from '@/types/calendar';
-import { cn } from '@/lib/utils'; // Standard Tailwind merge helper
+import { cn } from '@/lib/utils';
 
 interface Props {
   day: DayType;
@@ -15,43 +16,44 @@ export const CalendarDay: React.FC<Props> = ({ day }) => {
   const { date, isCurrentMonth, isToday, isSelected, isInRange, isRangeStart, isRangeEnd } = day;
 
   const handleSelection = () => {
+    if (!isCurrentMonth) return;
+    
     if (!range.start || (range.start && range.end)) {
-      // Start new selection
       setRange({ start: date, end: null });
     } else {
-      // Complete selection: ensure start is before end
-      if (date < range.start) {
-        setRange({ start: date, end: range.start });
-      } else {
-        setRange({ start: range.start, end: date });
-      }
+      date < range.start 
+        ? setRange({ start: date, end: range.start })
+        : setRange({ start: range.start, end: date });
     }
   };
 
   return (
-    <button
+    <motion.button
+      whileTap={{ scale: 0.95, z: -10 }}
       onClick={handleSelection}
       className={cn(
-        "relative h-14 w-full flex flex-col items-center justify-center transition-all duration-200 group",
-        !isCurrentMonth && "text-slate-300 dark:text-slate-600 pointer-events-none",
-        isCurrentMonth && "hover:bg-calendar-primary/10 rounded-lg",
-        isInRange && !isSelected && "bg-calendar-primary/5 dark:bg-calendar-primary/20",
-        isRangeStart && "bg-calendar-primary text-white rounded-l-lg",
-        isRangeEnd && "bg-calendar-primary text-white rounded-r-lg",
-        isRangeStart && isRangeEnd && "rounded-lg" // Single day selection
+        "relative h-14 w-full flex items-center justify-center transition-all duration-300",
+        !isCurrentMonth && "opacity-20 pointer-events-none",
+        isInRange && "bg-calendar-primary/10 dark:bg-calendar-primary/20",
+        isRangeStart && "rounded-l-xl bg-calendar-primary text-white shadow-lg z-20",
+        isRangeEnd && "rounded-r-xl bg-calendar-primary text-white shadow-lg z-20",
+        isRangeStart && isRangeEnd && "rounded-xl"
       )}
     >
       <span className={cn(
-        "text-sm font-medium z-10",
-        isToday && !isSelected && "text-calendar-primary font-bold underline decoration-2 underline-offset-4"
+        "text-sm font-bold tracking-tight z-10",
+        isToday && !isSelected && "text-calendar-primary"
       )}>
         {format(date, 'd')}
       </span>
-      
-      {/* Visual Dot for Today if not selected */}
+
+      {/* 3D "Hole" indicator for current day */}
       {isToday && !isSelected && (
-        <div className="absolute bottom-2 w-1 h-1 bg-calendar-primary rounded-full" />
+        <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-calendar-primary rounded-full animate-pulse shadow-[0_0_8px_var(--calendar-primary)]" />
       )}
-    </button>
+      
+      {/* Subtle paper indentation on hover */}
+      <div className="absolute inset-0 opacity-0 hover:opacity-100 bg-black/5 dark:bg-white/5 rounded-lg transition-opacity" />
+    </motion.button>
   );
 };

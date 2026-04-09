@@ -1,29 +1,50 @@
 @import "tailwindcss";
 
-/* In v4, preflight and utilities are included in the single import above */
-
 :root {
-  --calendar-primary: 341 100% 60%;
-  --foreground-rgb: 15, 23, 42;
-  --background-start-rgb: 248, 250, 252;
+  --wall-color: #f1f5f9;
+  --calendar-surface: #ffffff;
+  --paper-grain: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+  --accent-glow: rgba(255, 51, 102, 0.15);
 }
 
 .dark {
-  --calendar-primary: 341 100% 65%;
-  --foreground-rgb: 241, 245, 249;
-  --background-start-rgb: 2, 6, 23;
+  --wall-color: #020617;
+  --calendar-surface: #1e293b;
+  --accent-glow: rgba(255, 51, 102, 0.4);
 }
 
 @layer base {
   body {
-    /* Using standard CSS instead of @apply for better v4 compatibility */
-    color: rgb(var(--foreground-rgb));
-    background: rgb(var(--background-start-rgb));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    background: var(--wall-color);
+    /* Transition for a smooth day-to-night effect */
+    transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    perspective: 1500px;
   }
 }
 
-/* Custom Utilities */
-.text-calendar-primary { color: hsl(var(--calendar-primary)); }
-.bg-calendar-primary { background-color: hsl(var(--calendar-primary)); }
-.border-calendar-primary { border-color: hsl(var(--calendar-primary)); }
+.paper-texture {
+  background-image: var(--paper-grain);
+  background-blend-mode: multiply;
+  background-color: var(--calendar-surface);
+}
+
+/* The 3D "Hanging" effect */
+.hanging-calendar {
+  transform: rotateX(1deg);
+  box-shadow: 
+    0 10px 40px -10px rgba(0,0,0,0.3),
+    0 40px 80px -20px rgba(0,0,0,0.2);
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+}
+
+.hanging-calendar:hover {
+  transform: rotateX(0deg) scale(1.005);
+  box-shadow: 
+    0 15px 50px -10px rgba(0,0,0,0.4),
+    0 50px 100px -20px rgba(0,0,0,0.3);
+}
+
+/* Spotlight effect that moves with the theme */
+.lighting-overlay {
+  background: radial-gradient(circle at top right, var(--accent-glow), transparent 70%);
+}
